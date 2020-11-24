@@ -1,12 +1,10 @@
 package me.Samkist.CharacterDatabase;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-public class DoubleLinkedList<T> implements Iterable<T> {
+public class DoubleLinkedList<T> implements Iterable<T>, Collection<T> {
 
     private Node<T> head, tail;
 
@@ -15,18 +13,67 @@ public class DoubleLinkedList<T> implements Iterable<T> {
         return new SamIterator();
     }
 
-    public DoubleLinkedList() {
-
+    @Override
+    public Object[] toArray() {
+        return new Object[0];
     }
 
-    public void add(T data) {
-        Node<T> node = new Node<>(data, tail,null);
-        if(head == null) {
-            tail = head = node;
-        } else {
-            tail.setNext(node);
-            tail = node;
+    @Override
+    public <T1> T1[] toArray(T1[] a) {
+        SamIterator it = iterator();
+        int x = 0;
+        while(it.hasNext()) {
+            a[x++] = (T1) it.next;
         }
+        return a;
+    }
+
+    public SamIterator reverseIterator() {
+        return new SamIterator().fromEnd();
+    }
+
+    public DoubleLinkedList() {
+        LinkedList<String> linked = new LinkedList<>();
+    }
+
+    public boolean add(T data) {
+        try {
+            Node<T> node = new Node<>(data, tail, null);
+            if (head == null) {
+                tail = head = node;
+            } else {
+                tail.setNext(node);
+                tail = node;
+            }
+            return true;
+        } catch(Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        return false;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends T> c) {
+        return false;
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> c) {
+        return false;
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> c) {
+        return false;
+    }
+
+    @Override
+    public void clear() {
+
     }
 
     public class SamIterator implements Iterator {
@@ -44,10 +91,17 @@ public class DoubleLinkedList<T> implements Iterable<T> {
             return !Objects.isNull(previous);
         }
 
+        private SamIterator fromEnd() {
+            cursor = null;
+            next = null;
+            previous = tail;
+            return this;
+        }
+
         @Override
         public T next() {
             if(!hasNext()) throw new NoSuchElementException();
-            T data = (T) next.getData();
+            T data = next.getData();
             if(!Objects.isNull(cursor))
                 previous = cursor;
             cursor = next;
@@ -57,9 +111,12 @@ public class DoubleLinkedList<T> implements Iterable<T> {
 
         public T previous() {
             if(!hasPrevious()) throw new NoSuchElementException();
-            T data = (T) previous.getData();
-
-
+            T data = previous.getData();
+            if(Objects.nonNull(previous)) {
+                cursor = previous;
+            }
+            previous = previous.getPrevious();
+            next = cursor;
             return data;
         }
 
@@ -76,14 +133,16 @@ public class DoubleLinkedList<T> implements Iterable<T> {
                 next = head.getNext();
                 return;
             }
-            previous.setNext(cursor.getNext());
-            cursor.getNext().setPrevious(previous);
+            cursor = previous;
+            previous.setNext(next.getNext());
+            next.setPrevious(previous.getPrevious());
         }
 
         @Override
         public void forEachRemaining(Consumer action) {
             if(!Objects.isNull(cursor.getNext())) {
-                action.accept((T) cursor.getNext().getData());
+                action.accept((cursor.getNext().getData()));
+
             }
             while(hasNext()) {
                 action.accept(next());
@@ -98,6 +157,11 @@ public class DoubleLinkedList<T> implements Iterable<T> {
     }
 
     @Override
+    public boolean isEmpty() {
+        return false;
+    }
+
+    @Override
     public void forEach(Consumer<? super T> action) {
         Objects.requireNonNull(action);
         Iterator<T> it = iterator();
@@ -106,7 +170,7 @@ public class DoubleLinkedList<T> implements Iterable<T> {
         }
     }
 
-    public boolean contains(T data) {
+    public boolean contains(Object data) {
         Iterator<T> it = iterator();
         while(it.hasNext()) {
             if(it.next().equals(data))
@@ -115,14 +179,15 @@ public class DoubleLinkedList<T> implements Iterable<T> {
         return false;
     }
 
-    public void remove(T data) {
+    public boolean remove(Object data) {
         Iterator<T> it = iterator();
         while(it.hasNext()) {
             if(it.next().equals(data)) {
                 it.remove();
-                return;
+                return true;
             }
         }
+        return false;
     }
 
 
