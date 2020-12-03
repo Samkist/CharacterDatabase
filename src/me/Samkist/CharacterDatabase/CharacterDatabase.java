@@ -23,10 +23,11 @@ public class CharacterDatabase {
 
     public void removeCharacter(Character c) {
         DoubleLinkedList<Character>.SamIterator it = characters.iterator();
-
         while(it.hasNext()) {
-            if(Objects.deepEquals(it.next(), c))
+            if(Objects.deepEquals(it.next(), c)) {
                 it.remove();
+                return;
+            }
         }
     }
 

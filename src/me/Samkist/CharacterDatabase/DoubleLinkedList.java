@@ -133,9 +133,11 @@ public class DoubleLinkedList<T> implements Iterable<T>, Collection<T> {
                 next = head.getNext();
                 return;
             }
+            if(!Objects.isNull(next)) {
+                next.setPrevious(previous);
+            }
             cursor = previous;
-            previous.setNext(next.getNext());
-            next.setPrevious(previous.getPrevious());
+            previous.setNext(next);
         }
 
         @Override

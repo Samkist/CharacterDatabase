@@ -5,7 +5,6 @@ import BreezySwing.IntegerField;
 
 import javax.swing.*;
 import java.util.Objects;
-import java.util.Optional;
 
 public class EditCharacter extends GBDialog {
 
